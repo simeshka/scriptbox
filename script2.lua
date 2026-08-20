@@ -103,4 +103,4 @@ end)
 
 game.DescendantRemoving:Connect(function()
 	task.defer(refresh)
-end)e
+end)
