@@ -12,7 +12,11 @@ humanoid.AutoRotate = false
 local speed = math.rad(360 * 50)
 
 RunService.RenderStepped:Connect(function(dt)
-	local rot = CFrame.Angles(0, speed * dt, 0)
+	local rot = CFrame.Angles(
+		speed * dt,
+		speed * dt,
+		speed * dt
+	)
 
 	root.CFrame *= rot
 	camera.CFrame *= rot
