@@ -3,162 +3,125 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
+local old = playerGui:FindFirstChild("RuntimeExplorer")
+if old then
+	old:Destroy()
+end
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "RuntimeExplorer"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = playerGui
 
--- PROPERTIES WINDOW
+-- PROPERTIES
 
 local properties = Instance.new("Frame")
-properties.Name = "Properties"
 properties.Position = UDim2.fromScale(0,0)
 properties.Size = UDim2.fromScale(0.2,1)
 properties.BackgroundColor3 = Color3.fromRGB(30,30,30)
 properties.BorderSizePixel = 0
 properties.Parent = gui
 
-local propertiesTitle = Instance.new("TextLabel")
-propertiesTitle.Size = UDim2.new(1,0,0,30)
-propertiesTitle.BackgroundColor3 = Color3.fromRGB(40,40,40)
-propertiesTitle.BorderSizePixel = 0
-propertiesTitle.Text = "Properties"
-propertiesTitle.TextColor3 = Color3.new(1,1,1)
-propertiesTitle.Font = Enum.Font.SourceSansBold
-propertiesTitle.TextSize = 18
-propertiesTitle.Parent = properties
+local propTitle = Instance.new("TextLabel")
+propTitle.Size = UDim2.new(1,0,0,30)
+propTitle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+propTitle.BorderSizePixel = 0
+propTitle.Text = "Properties"
+propTitle.TextColor3 = Color3.new(1,1,1)
+propTitle.Font = Enum.Font.SourceSansBold
+propTitle.TextSize = 18
+propTitle.Parent = properties
 
-local selectedTitle = Instance.new("TextLabel")
-selectedTitle.Position = UDim2.new(0,0,0,30)
-selectedTitle.Size = UDim2.new(1,0,0,25)
-selectedTitle.BackgroundColor3 = Color3.fromRGB(35,35,35)
-selectedTitle.BorderSizePixel = 0
-selectedTitle.Text = "Nothing selected"
-selectedTitle.TextColor3 = Color3.fromRGB(180,180,180)
-selectedTitle.Font = Enum.Font.SourceSans
-selectedTitle.TextSize = 14
-selectedTitle.TextTruncate = Enum.TextTruncate.AtEnd
-selectedTitle.Parent = properties
+local selected = Instance.new("TextLabel")
+selected.Position = UDim2.new(0,0,0,30)
+selected.Size = UDim2.new(1,0,0,25)
+selected.BackgroundColor3 = Color3.fromRGB(35,35,35)
+selected.BorderSizePixel = 0
+selected.Text = "Nothing selected"
+selected.TextColor3 = Color3.fromRGB(190,190,190)
+selected.TextSize = 14
+selected.TextTruncate = Enum.TextTruncate.AtEnd
+selected.Parent = properties
 
-local propertyScroll = Instance.new("ScrollingFrame")
-propertyScroll.Position = UDim2.new(0,0,0,55)
-propertyScroll.Size = UDim2.new(1,0,1,-55)
-propertyScroll.BackgroundTransparency = 1
-propertyScroll.BorderSizePixel = 0
-propertyScroll.ScrollBarThickness = 5
-propertyScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-propertyScroll.CanvasSize = UDim2.new()
-propertyScroll.Parent = properties
+local propScroll = Instance.new("ScrollingFrame")
+propScroll.Position = UDim2.new(0,0,0,55)
+propScroll.Size = UDim2.new(1,0,1,-55)
+propScroll.BackgroundTransparency = 1
+propScroll.BorderSizePixel = 0
+propScroll.ScrollBarThickness = 5
+propScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+propScroll.CanvasSize = UDim2.new()
+propScroll.Parent = properties
 
-local propertyLayout = Instance.new("UIListLayout")
-propertyLayout.SortOrder = Enum.SortOrder.LayoutOrder
-propertyLayout.Parent = propertyScroll
+local propLayout = Instance.new("UIListLayout")
+propLayout.Parent = propScroll
 
-local function addProperty(name,value)
-	local row = Instance.new("Frame")
-	row.Size = UDim2.new(1,0,0,25)
-	row.BackgroundTransparency = 1
-	row.Parent = propertyScroll
-
-	local nameLabel = Instance.new("TextLabel")
-	nameLabel.Size = UDim2.new(0.45,0,1,0)
-	nameLabel.BackgroundColor3 = Color3.fromRGB(38,38,38)
-	nameLabel.BorderSizePixel = 0
-	nameLabel.Text = "  "..name
-	nameLabel.TextColor3 = Color3.fromRGB(210,210,210)
-	nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-	nameLabel.Font = Enum.Font.SourceSans
-	nameLabel.TextSize = 14
-	nameLabel.Parent = row
-
-	local valueLabel = Instance.new("TextLabel")
-	valueLabel.Position = UDim2.new(0.45,0,0,0)
-	valueLabel.Size = UDim2.new(0.55,0,1,0)
-	valueLabel.BackgroundColor3 = Color3.fromRGB(45,45,45)
-	valueLabel.BorderSizePixel = 0
-	valueLabel.Text = "  "..tostring(value)
-	valueLabel.TextColor3 = Color3.fromRGB(225,225,225)
-	valueLabel.TextXAlignment = Enum.TextXAlignment.Left
-	valueLabel.TextTruncate = Enum.TextTruncate.AtEnd
-	valueLabel.Font = Enum.Font.SourceSans
-	valueLabel.TextSize = 14
-	valueLabel.Parent = row
-end
-
-local function showProperties(obj)
-	for _,v in ipairs(propertyScroll:GetChildren()) do
+local function clearProperties()
+	for _,v in ipairs(propScroll:GetChildren()) do
 		if v:IsA("GuiObject") then
 			v:Destroy()
 		end
 	end
+end
 
-	selectedTitle.Text = obj.Name.."  ["..obj.ClassName.."]"
+local function property(name,value)
+	local row = Instance.new("TextLabel")
+	row.Size = UDim2.new(1,0,0,22)
+	row.BackgroundTransparency = 1
+	row.TextXAlignment = Enum.TextXAlignment.Left
+	row.TextColor3 = Color3.fromRGB(220,220,220)
+	row.TextSize = 14
+	row.Font = Enum.Font.SourceSans
+	row.Text = "  "..name.." = "..tostring(value)
+	row.TextTruncate = Enum.TextTruncate.AtEnd
+	row.Parent = propScroll
+end
 
-	addProperty("Name",obj.Name)
-	addProperty("ClassName",obj.ClassName)
-	addProperty("Parent",obj.Parent and obj.Parent.Name or "nil")
+local function showProperties(obj)
+	clearProperties()
+
+	selected.Text = obj.Name.." ["..obj.ClassName.."]"
+
+	property("Name",obj.Name)
+	property("ClassName",obj.ClassName)
+	property("Parent",obj.Parent and obj.Parent.Name or "nil")
 
 	if obj:IsA("BasePart") then
-		addProperty("Position",obj.Position)
-		addProperty("Orientation",obj.Orientation)
-		addProperty("Size",obj.Size)
-		addProperty("Transparency",obj.Transparency)
-		addProperty("Anchored",obj.Anchored)
-		addProperty("CanCollide",obj.CanCollide)
-		addProperty("CanTouch",obj.CanTouch)
-		addProperty("CanQuery",obj.CanQuery)
-		addProperty("Material",obj.Material)
-		addProperty("Color",obj.Color)
-		addProperty("AssemblyLinearVelocity",obj.AssemblyLinearVelocity)
-		addProperty("AssemblyAngularVelocity",obj.AssemblyAngularVelocity)
+		property("Position",obj.Position)
+		property("Orientation",obj.Orientation)
+		property("Size",obj.Size)
+		property("Anchored",obj.Anchored)
+		property("CanCollide",obj.CanCollide)
+		property("Transparency",obj.Transparency)
+		property("Material",obj.Material)
+		property("Color",obj.Color)
 	end
 
 	if obj:IsA("Humanoid") then
-		addProperty("Health",obj.Health)
-		addProperty("MaxHealth",obj.MaxHealth)
-		addProperty("WalkSpeed",obj.WalkSpeed)
-		addProperty("JumpPower",obj.JumpPower)
-		addProperty("AutoRotate",obj.AutoRotate)
-		addProperty("HipHeight",obj.HipHeight)
-		addProperty("Sit",obj.Sit)
-	end
-
-	if obj:IsA("GuiObject") then
-		addProperty("Visible",obj.Visible)
-		addProperty("Position",obj.Position)
-		addProperty("Size",obj.Size)
-		addProperty("Rotation",obj.Rotation)
-		addProperty("ZIndex",obj.ZIndex)
-	end
-
-	if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-		addProperty("Text",obj.Text)
-		addProperty("TextSize",obj.TextSize)
-		addProperty("TextColor3",obj.TextColor3)
-	end
-
-	if obj:IsA("Model") then
-		addProperty("PrimaryPart",obj.PrimaryPart and obj.PrimaryPart.Name or "nil")
-	end
-
-	if obj:IsA("Camera") then
-		addProperty("FieldOfView",obj.FieldOfView)
-		addProperty("CameraType",obj.CameraType)
-		addProperty("CFrame",obj.CFrame)
+		property("Health",obj.Health)
+		property("MaxHealth",obj.MaxHealth)
+		property("WalkSpeed",obj.WalkSpeed)
+		property("JumpPower",obj.JumpPower)
+		property("AutoRotate",obj.AutoRotate)
 	end
 
 	if obj:IsA("Player") then
-		addProperty("UserId",obj.UserId)
-		addProperty("DisplayName",obj.DisplayName)
-		addProperty("Team",obj.Team and obj.Team.Name or "nil")
+		property("UserId",obj.UserId)
+		property("DisplayName",obj.DisplayName)
+	end
+
+	if obj:IsA("GuiObject") then
+		property("Position",obj.Position)
+		property("Size",obj.Size)
+		property("Visible",obj.Visible)
+		property("Rotation",obj.Rotation)
 	end
 end
 
--- EXPLORER WINDOW
+-- EXPLORER
 
 local explorer = Instance.new("Frame")
-explorer.Name = "Explorer"
 explorer.Position = UDim2.fromScale(0.8,0)
 explorer.Size = UDim2.fromScale(0.2,1)
 explorer.BackgroundColor3 = Color3.fromRGB(30,30,30)
@@ -185,70 +148,108 @@ scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 scroll.CanvasSize = UDim2.new()
 scroll.Parent = explorer
 
-local layout = Instance.new("UIListLayout")
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Parent = scroll
+local list = Instance.new("UIListLayout")
+list.SortOrder = Enum.SortOrder.LayoutOrder
+list.Parent = scroll
 
-local expanded = {
-	[game] = true
-}
+local MAX_CHILDREN = 200
+local order = 0
 
-local function refresh()
-	for _,v in ipairs(scroll:GetChildren()) do
-		if v:IsA("TextButton") then
-			v:Destroy()
+local function makeNode(obj,depth)
+	order += 1
+
+	local container = Instance.new("Frame")
+	container.Name = "Node"
+	container.Size = UDim2.new(1,0,0,22)
+	container.AutomaticSize = Enum.AutomaticSize.Y
+	container.BackgroundTransparency = 1
+	container.LayoutOrder = order
+	container.Parent = scroll
+
+	local row = Instance.new("TextButton")
+	row.Size = UDim2.new(1,0,0,22)
+	row.BackgroundTransparency = 1
+	row.BorderSizePixel = 0
+	row.TextColor3 = Color3.fromRGB(220,220,220)
+	row.TextXAlignment = Enum.TextXAlignment.Left
+	row.Font = Enum.Font.SourceSans
+	row.TextSize = 14
+	row.AutoButtonColor = false
+	row.Parent = container
+
+	local childContainer = Instance.new("Frame")
+	childContainer.Position = UDim2.new(0,0,0,22)
+	childContainer.Size = UDim2.new(1,0,0,0)
+	childContainer.AutomaticSize = Enum.AutomaticSize.Y
+	childContainer.BackgroundTransparency = 1
+	childContainer.Visible = false
+	childContainer.Parent = container
+
+	local childLayout = Instance.new("UIListLayout")
+	childLayout.Parent = childContainer
+
+	local opened = false
+	local loaded = false
+
+	local function updateText()
+		local hasChildren = #obj:GetChildren() > 0
+		local arrow = ""
+
+		if hasChildren then
+			arrow = opened and "▼ " or "▶ "
 		end
+
+		row.Text = string.rep("    ",depth)..arrow..obj.Name
 	end
 
-	local order = 0
-
-	local function add(obj,depth)
-		if obj == gui or obj:IsDescendantOf(gui) then
+	local function loadChildren()
+		if loaded then
 			return
 		end
 
-		order += 1
+		loaded = true
 
 		local children = obj:GetChildren()
-		local open = expanded[obj]
+		local amount = math.min(#children,MAX_CHILDREN)
 
-		local button = Instance.new("TextButton")
-		button.Size = UDim2.new(1,0,0,22)
-		button.BackgroundTransparency = 1
-		button.BorderSizePixel = 0
-		button.TextColor3 = Color3.fromRGB(220,220,220)
-		button.TextXAlignment = Enum.TextXAlignment.Left
-		button.Font = Enum.Font.SourceSans
-		button.TextSize = 14
-		button.AutoButtonColor = false
-		button.LayoutOrder = order
-
-		local arrow = ""
-
-		if #children > 0 then
-			arrow = open and "▼ " or "▶ "
+		for i = 1,amount do
+			makeNode(children[i],depth + 1).Parent = childContainer
 		end
 
-		button.Text = string.rep("    ",depth)..arrow..obj.Name
-		button.Parent = scroll
-
-		button.MouseButton1Click:Connect(function()
-			showProperties(obj)
-
-			if #obj:GetChildren() > 0 then
-				expanded[obj] = not expanded[obj]
-				refresh()
-			end
-		end)
-
-		if open then
-			for _,child in ipairs(children) do
-				add(child,depth + 1)
-			end
+		if #children > MAX_CHILDREN then
+			local warning = Instance.new("TextLabel")
+			warning.Size = UDim2.new(1,0,0,22)
+			warning.BackgroundTransparency = 1
+			warning.TextColor3 = Color3.fromRGB(255,180,80)
+			warning.TextXAlignment = Enum.TextXAlignment.Left
+			warning.TextSize = 14
+			warning.Text =
+				string.rep("    ",depth + 1)
+				.."+"..(#children - MAX_CHILDREN)
+				.." more hidden"
+			warning.Parent = childContainer
 		end
 	end
 
-	add(game,0)
+	row.MouseButton1Click:Connect(function()
+		showProperties(obj)
+
+		if #obj:GetChildren() == 0 then
+			return
+		end
+
+		if not loaded then
+			loadChildren()
+		end
+
+		opened = not opened
+		childContainer.Visible = opened
+		updateText()
+	end)
+
+	updateText()
+
+	return container
 end
 
-refresh()
+makeNode(game,0)
