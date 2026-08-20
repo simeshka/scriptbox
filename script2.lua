@@ -1,19 +1,31 @@
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local root = char:WaitForChild("HumanoidRootPart")
-local humanoid = char:WaitForChild("Humanoid")
+local function highlightCharacter(character)
+	if character:FindFirstChild("PlayerHighlight") then return end
 
-humanoid.AutoRotate = false
+	local h = Instance.new("Highlight")
+	h.Name = "PlayerHighlight"
+	h.FillTransparency = 0.5
+	h.OutlineTransparency = 0
+	h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	h.Adornee = character
+	h.Parent = character
+end
 
-local speed = math.rad(360 * 50)
+local function setupPlayer(player)
+	if player.Character then
+		highlightCharacter(player.Character)
+	end
 
-RunService.RenderStepped:Connect(function(dt)
-	root.CFrame *= CFrame.Angles(
-		speed * dt,
-		speed * dt,
-		speed * dt
-	)
+	player.CharacterAdded:Connect(highlightCharacter)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+	if player ~= Players.LocalPlayer then
+		setupPlayer(player)
+	end
+end
+
+Players.PlayerAdded:Connect(function(player)
+	setupPlayer(player)
 end)
